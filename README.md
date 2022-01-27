@@ -8,3 +8,17 @@ Interface Definition: RAML and swagger.
 
 ### Web sockets
 Are bidrectional. Are full duplex. Single TCP connection  - Initial HTTP request, upgrade to socket connection
+
+### Serverless
+* AWS Step Functions
+* Azure Durable Functions
+* Azure Logic Apps 
+
+### Architecture
+
+UseCase : Why we need it. Interation between user and system. \
+API Requirements: APIS- HTTP Request, Description, Response, Error Response \
+Physical Architecture: Services/Components involved \
+
+
+
