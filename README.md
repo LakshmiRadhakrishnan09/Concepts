@@ -40,6 +40,21 @@ Physical Architecture: Services/Components involved \
 ### Teraform
 https://www.hashicorp.com/resources/evolving-infrastructure-terraform-opencredo
 
+Scenario: Kubenertes in AWS : VPC, Public subnet, Private subnet, Bastion, VM with k8s, RDS
+
+* Do not use use single state file for non-prod and production. Envt - Seperate state management into prod and test. Also seperate into logical files eg: networks.tf, vms.tf
+* Avoid duplicate definition. Use Reusable modules. 
+      * Identify logical groups. Eg: Core ( VPC, Subnets, Gateways, Bastion Hosts), DB(RDS, RDS Subnet), K8s cluster(Instances, Security Groups)
+      * Modules : core, k8s-cluster, databse folders
+            * input.tf and output.tf . Clear contarcts for each module. Pass output as inputs to other modules.
+      * envs: config.tf, terraform.ts, terraform.tfvars, terraform.tfstate
+      * Nested modules:
+      *       common: aws(network-> vpc, pub_subnet, priv_subnet ;  comps -> instances, db-instances)
+      *       Core modules will be composed of base modules. 
+* Make things that change as configurable eg: IP address range
+* Manage components independently. Scenario: Change only bastion host without affecting k8s cluster
+      * One state file for each envt
+
 
 ### Spring multi module
 https://spring.io/guides/gs/multi-module/
