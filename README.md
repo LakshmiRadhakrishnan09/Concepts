@@ -67,5 +67,60 @@ https://stackoverflow.com/questions/57489226/spring-how-to-pass-configuration-fr
 
 https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.developing-auto-configuration
 
+### Spring Boot
 
+* start.spring.io : spring intializer . Use IntelliJ plugin Spring Intializer.
+* spring probject can be imported as a module
+* in a spring web project, u can place static html files under resources folder. When spring boor starts u can hit it at port 80.
+* GroupId, ArtifactId
+
+**Auto-cofiguration**
+* @EnableAutoConfiguration: Scans configuration classes dynamically. 
+* Conditional Loading: @ConditionalOnClass, @ConditionalOnBean, @ConfigurationOnProperty, @ConfigurationOnMissingBean
+* EnableConfigurationProperties
+* Spring Configuration can be injected through properties or beans.
+* Property based configuration : application.properties, application.yaml, Enviornment Variables, Command line parameters, Cloud Configuration( Config Server, Consul) - Most common way.
+* Bean Configuration: Adding beans to default application class, adding beans to seperate configuration classes( using @ComponentScan) , importing xml based configuration( legacy) , Component Scanning( Any component that is in sub package of main SpringBootApplicatin package is component scanned automatically)
+
+**Spring profiles**
+* Change configuration based on enviornment profile.
+* Multi enviornment deployments - dev, stage, prod
+* Application.yaml: 
+
+               ```
+                    spring:
+                         profiles: dev
+                    server:
+                         port: 8000
+                    --- ( 3 hypens)
+                    spring:
+                         profiles: test
+                    server:
+                         port: 9000
+            ```
+            
+* Engaging profile : spring.profiles.active as an enviornment variable
+
+**Building**
+Spring has build scripts for building. Maven and Grdle use these build scripts. Creates a executable JAR. 
+Containaziring Spring boot application: You can use build-image plugin or write a DockerFile(allows more control). 
+
+**Web Applications**
+In Spring boot,web services and html based applications are same. A single application can have both. spring-boot-starter-web adds following dependencies -  Tomcat, JSON Marshalling - Jackson, Automatic marshalling and unmarshalling, Logging - Slf4j. Logback logging. SnakeYaml. Testing - Junit. \
+Servlets, Filters and Listeners: Default servlet responds at "/". To add own Servlets u can annotate with @WebServlet. \
+Embedded server: Can be configured by Properties. eg: server.port. All properties available at https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#application-properties.server \
+Compression: Can be configured by Properties. \
+TLS: Can be configured by Properties. U need to use a keystore that contains a certificate. 
+Spring boot web application: Based on Spring MVC. To build an application
+* Create a module
+* Add spring web dependency
+* Add Thymeleaf Template dependency
+* Add a template under resources -> template -> HTML file with thyme namespace. Display th:each="room:${rooms}" th:text="${room.name}" in a table.
+* Add a new model under main java
+* Add controller. @Controller , @RequestMapping("/rooms")
+* Add a @GetMapping which accepts a Model model method parameter. model.addAttribute("rooms", arrayListOfRooms); return "rooms"; "rooms" is used in template.
+Spring boot web services(REST API):Based on Spring MVC. View is content type of page **not** HTML. Use @RestController instaed of @Controller in order not to return a view but intsead a marshalled object. JSON is the default output type.
+
+
+### Spring Cloud
 
