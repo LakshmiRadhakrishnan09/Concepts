@@ -124,3 +124,30 @@ Spring boot web services(REST API):Based on Spring MVC. View is content type of 
 
 ### Spring Cloud
 
+### ADFS
+
+Active Directory Federation Service. \
+Provide SSO for web applications. Once u signed to a workstation, u can use same crdetials with third party applications. \
+Sends a claim to a web application in behalf of AD. \
+
+Why we need ADFS? \
+Organization AD on premise, Domain Users ---------------- Cloud Resources \
+Alternate Options: \
+1. VPN Tunnel and Domain Trust
+2. Export from domain to cloud
+3. Keep different username and password for work account and cloud resource: For any new service, need to bring new user and passwords.
+
+
+ADFS Flow
+1. User login to computer. Trying to access a cloud resource. 
+2. Cloud Resource redirect to ADFS. 
+3. User authenticated against ADFS.
+4. ADFS authenticates check user against a AD. A claim in the form of cookie is handed back to user(SAML Cookie). A redirection link of cloud resource.
+5. Cloud resource accept claim and allow the user.
+6. Username and password is not provided to cloud resource. Login is using claim.
+
+
+https://www.youtube.com/watch?v=CjarTgjKcX8
+
+
+
