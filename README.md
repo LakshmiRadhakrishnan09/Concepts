@@ -146,8 +146,15 @@ ADFS Flow
 5. Cloud resource accept claim and allow the user.
 6. Username and password is not provided to cloud resource. Login is using claim.
 
-
+Authentication 
 https://www.youtube.com/watch?v=CjarTgjKcX8
+
+![ModernAuthentication](https://user-images.githubusercontent.com/33679023/156295307-cb6eae97-0608-4c56-9e79-ca6a72b8f86c.png)
+
+![Authentication2](https://user-images.githubusercontent.com/33679023/156296972-3577c83f-7b83-43a4-a6c8-600ee1bcc354.png)
+
+![SSO](https://user-images.githubusercontent.com/33679023/156297687-489f748f-b357-47e7-bbfa-97456aa48cd8.png)
+
 
 
 
