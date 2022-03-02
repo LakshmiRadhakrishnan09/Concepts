@@ -155,6 +155,7 @@ https://www.youtube.com/watch?v=CjarTgjKcX8
 
 ![SSO](https://user-images.githubusercontent.com/33679023/156297687-489f748f-b357-47e7-bbfa-97456aa48cd8.png)
 
+![Federation-ADFS](https://user-images.githubusercontent.com/33679023/156299227-1542cbfe-de46-4c81-833c-d1716c4d0d66.png)
 
 
 
