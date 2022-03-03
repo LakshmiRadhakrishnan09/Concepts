@@ -158,4 +158,9 @@ https://www.youtube.com/watch?v=CjarTgjKcX8
 ![Federation-ADFS](https://user-images.githubusercontent.com/33679023/156299227-1542cbfe-de46-4c81-833c-d1716c4d0d66.png)
 
 
+### Skaffold
+Command line tool that facilitates continuous development for Kubernetes-native applications.
+
+### Jenkins
+https://www.youtube.com/watch?v=1fPTOhn8fgk
 
