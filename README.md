@@ -164,3 +164,11 @@ Command line tool that facilitates continuous development for Kubernetes-native 
 ### Jenkins
 https://www.youtube.com/watch?v=1fPTOhn8fgk
 
+### Cucumber - BDD
+Cucumber is a tool that supports Behaviour-Driven Development(BDD). \
+Cucumber reads executable specifications written in plain text and validates that the software does what those specifications say. \
+Gherkin is a set of grammar rules that makes plain text structured enough for Cucumber to understand. \
+Gherkin documents are stored in .feature text files . \
+Step definitions connect Gherkin steps to programming code. \
+
+
