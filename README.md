@@ -171,4 +171,36 @@ Gherkin is a set of grammar rules that makes plain text structured enough for Cu
 Gherkin documents are stored in .feature text files . \
 Step definitions connect Gherkin steps to programming code. \
 
+### Hibernate
+
+##  ManyToOne Relationship
+
+Many Students can have one address. A student can have only one address.
+
+![image](https://user-images.githubusercontent.com/33679023/158552126-f52f0ec1-4b66-44ea-82f8-9351d92f83ff.png)
+
+![image](https://user-images.githubusercontent.com/33679023/158552291-ad39fa2c-8ca0-4707-9b13-b2b15830f3a8.png)
+
+```
+@Entity
+@Table(name = "STUDENT")
+public class Student {
+@ManyToOne(cascade = CascadeType.ALL)
+public Address getStudentAddress() {
+return this.studentAddress;
+}
+}
+```
+
+```
+@Entity
+@Table(name = "ADDRESS")
+public class Address {
+
+}
+```
+
+//By using cascade=ALL option the address need not be saved explicitly when the student object is persisted the address will be automatically saved. No need to do this //session.save(address);
+
+## Pesrsist vs Save
 
