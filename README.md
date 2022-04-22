@@ -204,3 +204,27 @@ public class Address {
 
 ## Pesrsist vs Save
 
+### Cockroach DB
+
+Traditional DB - ACID. No Scalability(Only one server possible). No availability. \
+Distributed NoSQL - No transactions.
+
+CockroachDB - provides good of both worlds. \
+Distributed SQL database. \
+Provides ACID Transactions. \
+Provides highest Isolation - Serialization. \
+
+Keyspace: Ordered set of key and value. Key part contains where the data exist and the primary key. Rest of columns are put as value part. Cluster divides key space to ranges. When keyspace is greater than 64MB it splits to new range. Multiple replicas of range distributed across cluster. 
+
+RAFT Protocol: Consensus algorithm . Has leaders and followers. If follower is not receiving a heartbeat from leader, it declares itself as a candidate and triggers an election process. Majority vote make it as a leader.\
+Lease Holder: One of the replica act as lease holder. Its job is it serve reads on its own, bypassing raft. \
+* All reads and writes will be sent to lease node.
+* Cockroach DB tried to make lease holder as leader.
+* Cockraoch Db use raft for writes. When it get an insert, leader writes it to Raft log. Leader then propose writes to followers. Each follower replica command on its raft log. Once majority of followers have completed write, leader will commit write and notify leaseholder to begin showing the writes to the readers.
+* Leaseholders ensure that readers only see commited writes.
+* Replicas join together to form a raft group
+
+
+Availability and Durability in a 3 node cluster. \
+Which ever node client connects to is called a gateway. Client can connect to any node. Leaders of a range may not be in same node. From the node client connected, internally requests are routed to leaders of specific range query is for and results are combined at gateway. \
+If a node goes down : If a client is connected to that node, it has to find a new gateway. This problem can be solved by a load balancer. A leader election will be held and ranges in down nodes are distributed among live nodes. Cluster will be able to serve reads and writes with few seconds of latency. \
