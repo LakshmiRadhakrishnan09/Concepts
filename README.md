@@ -228,3 +228,12 @@ Lease Holder: One of the replica act as lease holder. Its job is it serve reads 
 Availability and Durability in a 3 node cluster. \
 Which ever node client connects to is called a gateway. Client can connect to any node. Leaders of a range may not be in same node. From the node client connected, internally requests are routed to leaders of specific range query is for and results are combined at gateway. \
 If a node goes down : If a client is connected to that node, it has to find a new gateway. This problem can be solved by a load balancer. A leader election will be held and ranges in down nodes are distributed among live nodes. Cluster will be able to serve reads and writes with few seconds of latency. \
+
+
+
+## Spring Boot JPA Data
+
+https://spring.io/projects/spring-boot
+https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#reference
+https://hibernate.org/orm/documentation/5.4/
+
