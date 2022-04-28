@@ -199,6 +199,8 @@ public class Address {
 
 }
 ```
+@ManyToOne annotation is used in the entity that is having foreign key.(In above case in Student entity)
+
 
 //By using cascade=ALL option the address need not be saved explicitly when the student object is persisted the address will be automatically saved. No need to do this //session.save(address);
 
@@ -229,9 +231,43 @@ Availability and Durability in a 3 node cluster. \
 Which ever node client connects to is called a gateway. Client can connect to any node. Leaders of a range may not be in same node. From the node client connected, internally requests are routed to leaders of specific range query is for and results are combined at gateway. \
 If a node goes down : If a client is connected to that node, it has to find a new gateway. This problem can be solved by a load balancer. A leader election will be held and ranges in down nodes are distributed among live nodes. Cluster will be able to serve reads and writes with few seconds of latency. \
 
+One To Many Relationship: Track vehicle location history. One vehicle can have multiple locations. \
+Location_History table will include vehicle_id. While creating location_history table, vehicle_id REFERENCES on vehicles(id) ON DELETE CASCADE. Cockroach DB ensures referntial integrety. It checks that while insert a valid vehicle id exists.
 
+```
+class Location_History{
 
-## Spring Boot JPA Data
+@ManyToOne
+@JoinColumn(name="vehicle_id", nullable= false)
+private Vehicle vehicle;
+}
+
+```
+
+@ManyToOne annotation is used in the entity that is having foreign key.(In above case in Location_History)
+
+If we want to get all locations associated with a vehicle, only above configuration will not help. In that case do the following:
+
+```
+class Vehicle{
+@OneToMany(fetch = FetchType.LAZY, mappedBy= "vehicle" , cascade = CascadeType.ALL)
+private List<LocationHistory> locationHistoryList;
+}
+
+```
+
+Asscoiated location history is fetched lazily. If application is not refering locationHistoryList, then data is not fetched. "mappedBy" refers to property in locationHistory entity. CascadeType.ALL ensures if any vehicle is deleted, location histories are also deleted. 
+
+We can use @OrderBy("timestamp DESC)
+
+<img width="925" alt="Screenshot 2022-04-28 at 5 31 55 PM" src="https://user-images.githubusercontent.com/33679023/165748581-43553b83-624e-4c28-9ded-9dd27b5fb0a9.png">
+
+Using Array Data Type:
+phone_numbers String [];
+
+Alter table is done as a background job. No impact to reads or writes.
+
+### Spring Boot JPA Data
 
 https://spring.io/projects/spring-boot
 https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#reference
