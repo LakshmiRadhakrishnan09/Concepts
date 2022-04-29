@@ -267,9 +267,34 @@ phone_numbers String [];
 
 Alter table is done as a background job. No impact to reads or writes.
 
+Schema Design:
+* Time related: Time: Stores date in UTC. TimeTZ: Not recommended. Timestamp: day in UTC. TimestanpTZ: Timestamp in Clients time zone. Store an offset. Recommended to use.
+* Bytes: Binar information such as images.
+* String: Varchar(n) = String(n) 
+* Decimal:decimal(precision, scale
+* Collate: Lanuage specific rules are applied. For example some special characters different in order in different languages. You can specify Collate when u create a column. While inserting you need to specify the language. You can query it back using any collation than what is specified for the column.
+* now(): database time.
+* Geometry datatype: 2d
+* Geography datatype: lattitude and longitude. considering earths curvature.
+
+Column Constraints
+* Default
+* NOT NULL
+* Unique constaint
+* Primary Key - Unique + Not null
+* Foreign Key: "References". Null values are allowed by default.You can set Not Null
+* By default, it will not allow foreign key table updates or deletes. But you can set ON delete Cascade. On delete Set Null.
+* Check : limit values allowed for a field. CHECK (0 < chek_qualiy_inHand)
+* SHOW constaints
+* 
+
 ### Spring Boot JPA Data
 
 https://spring.io/projects/spring-boot
 https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#reference
 https://hibernate.org/orm/documentation/5.4/
+
+### Monorepo vs Multi repo
+
+Mono repo: Keep every code in one repo. U cannot use Git. U need to use VCS.
 
