@@ -286,7 +286,39 @@ Column Constraints
 * By default, it will not allow foreign key table updates or deletes. But you can set ON delete Cascade. On delete Set Null.
 * Check : limit values allowed for a field. CHECK (0 < chek_qualiy_inHand)
 * SHOW constaints
-* 
+* JSON Datatype: make sure size is less than one mg.
+* Array Datatype
+* Inverted Indexes: Standard Index cannot be created on Json column or array column. Instaed use inverted index. Eg : index/key/valve primary_key. You cannot oerform less than greater than functions.
+* Computed Column: They expose data generated in other columns by an expression. Efficient way to query array and jsons columns. Extract a value from json column and create secondary indexes.
+* Use UUID for primarykey.
+
+
+Anti-Pattern
+* Using auto generated primary key is a anti-pattern.
+* Auto incremented keys will result in hot-spots. All new inserts will be for a range and single node need to handle all inserts.
+* Generating incremnts can cause contention in servers.
+* Primary Key - Unuque and non sequential. Example username+ timestamp
+* Or use server side UUID. CockroachDB generates them efficiently.
+
+Hash-Sharded Table
+* To eliminate hot spots
+* Timestamps as primark keys can result in hot spots.
+* Creates a comuputed column that hold the hash value. Use a hash value before primary key. Bucket is a random hash value.Make sure inserts are spread across nodes.
+* USING HASHWITH BUCKET_COUNT = 5
+* Can be created for secondary indexes
+
+Main Points
+* Do not use auto increment ids.
+* Do not use timestamp as primary key
+* Use UUID
+* Use TimeStampTZ for storing time
+* Use JSON DataTypes for unstratured data
+* Use Array data types
+* Use computed columns
+* U can create secondary index on data that is queried frequently
+
+
+Read More: https://glennfawcett.wpcomstaging.com
 
 ### Spring Boot JPA Data
 
@@ -297,4 +329,5 @@ https://hibernate.org/orm/documentation/5.4/
 ### Monorepo vs Multi repo
 
 Mono repo: Keep every code in one repo. U cannot use Git. U need to use VCS.
+
 
