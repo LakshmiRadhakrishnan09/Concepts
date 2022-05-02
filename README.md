@@ -288,7 +288,7 @@ Column Constraints
 * SHOW constaints
 * JSON Datatype: make sure size is less than one mg.
 * Array Datatype
-* Inverted Indexes: Standard Index cannot be created on Json column or array column. Instaed use inverted index. Eg : index/key/valve primary_key. You cannot oerform less than greater than functions.
+* Inverted Indexes: Standard Index cannot be created on Json column or array column. Instead use inverted index. Eg : index/key/valve primary_key. You cannot perform less than greater than functions.
 * Computed Column: They expose data generated in other columns by an expression. Efficient way to query array and jsons columns. Extract a value from json column and create secondary indexes.
 * Use UUID for primarykey.
 
@@ -315,8 +315,39 @@ Main Points
 * Use JSON DataTypes for unstratured data
 * Use Array data types
 * Use computed columns
-* U can create secondary index on data that is queried frequently
+* U can create secondary index on data that is queried frequently to improve performance.
+* Use composite indexes 
+* Use stored column on indexes 
 
+Serializable Transaction: A database behaves like it has entire database to itself while its execution. This means other writes cannot affect the transaction unless other transactions commit before the start of transaction. And other reads cannot see the transaction until it commits. Wherever possible cockroachDB will retry a transaction.
+
+Tables in a database are sorted by primary keys. So looking up a record by their primary key value is relatively quick.But when filtering by a column that is not part of index, database has to scan one by one. Full table scan is the most common cause of performance issues. 
+
+EXPLAIN <Query> : plan.  EXPLAIN ANALYSE <Query> : Execution statistics."
+     
+distribution-> full: Query is executed by all nodes in parallel. Final results will be returned by gateway node. distribution -> local: Query is executed by only gateway node. /
+vectorized : true or false. Read more /
+FULL SCAN - Full table
+ 
+Composite Index: Indexes built from multiple columns. CREATE INDEX on user(lastname, firstname). This composite index will benefit if we want to query by last name or by both first name and last name. If we have to filter by only first name, it will result in a full table scan.  Index prefix is the set of columns of an index. Suppose u are creating a composite index on A,B, C, D, E. You can use it to filter by A, A and B, A and B and C. But you cannot use it for filtering by C or by for filtering by A and C. In that case u need to create a seperate index. 
+     
+ORDER BY: Order by on an indexed column make use of inherent order of index. If u use order by on a non-indexed column, then a full table scan is performed.
+     
+Covered Query: A query that can be answered by an index, without looking into underlying table. Sometimes u want to retrieve a column, but do not want to filter by it. For example u want to get all vehicles with battery > 10%. In this case of we have an index on battery, then it is a covered query. But what if u want to retrieve sampling time also. In this case, CREATE INDEX on vehicle(battery) STORING (sampling_time).
+     
+Index addes write time to db. It makes reads efficient. Sometimes u are creating unwanted indexes. Use internal cockroachdb to check if indexes are used or not. crdb_internal.table_indexes. 
+     
+Using JSON columns: use jsonb_pretty(vehicle_info) to get full json as part of select. To get a specific key, use arrow key. vehicle_info -> color. To filter SELECT id, vehicle_info -> 'wear' as wear FROM vehicles where vehicle_info > '{"wear":"damaged"}'.
+It is possible to move data from existing columns to json columns as an UPDATE statement.
+     
+Inverted Index: CREATE INVERTED INDEX on vehicles(vehicles_info).
+Vehicles table ; vehicle_info column: data { "color": "green", "purchase_info" : {"seral number": 123}, "type":"scooter"}
+This will create invereted indexes:
+     * vehicles/vehicle_info_idx/type/scooter/Vehicle 1
+     * vehicles/vehicle_info_idx/purchase_info/serail number/123/Vehicle 1
+Inverted indexes cannot use less than or greater than operatons. They support only contains  or contained by or equals.
+     
+Computed columns:Allows to run comparison queries. For better performance, u should index computed columns.      
 
 Read More: https://glennfawcett.wpcomstaging.com
 
