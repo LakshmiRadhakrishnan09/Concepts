@@ -347,7 +347,29 @@ This will create invereted indexes:
      * vehicles/vehicle_info_idx/purchase_info/serail number/123/Vehicle 1
 Inverted indexes cannot use less than or greater than operatons. They support only contains  or contained by or equals.
      
-Computed columns:Allows to run comparison queries. For better performance, u should index computed columns.      
+Computed columns:Allows to run comparison queries. For better performance, u should index computed columns.  
+
+Serverless Database: No operations. Responds automatically to changing loads. Pay for what u use. Is always ON. For unpredictable loads. 
+     
+RUs: Resource utilization is measured in RUs.Compute resources and I/O resources. 
+     
+Use multi row inserts for bulk imports. 
+     
+How cockroachDb serverless works: Use multi tenant architecture. Single server shared between multiple customers. To distribute compute and storage power across multiple customers. All built on top of k8s. When u get a spike, a "pool" is allocated(not from other customers). 
+     
+## CocroachDb and event driven microservice     
+
+Dual write problem: Need to update two different systems with same data.
+  
+Consider 4 microservices. User Service, Vehicle service , rides service and UI gateway service. We create 3 databases( not 3 tables) - vehicles db, rides db and user db. Vehicles db has vehicles table and location_history table. When we start a ride, we need to inform vehicles service that the vehicle is no more available for rise(communication between services).
+  
+Transactional Outbox pattern: 
+  Each microservice should have exclusive access to its database. If another servive need to use the data, it cannot query the database, but use an API or a message queue(Sync or Asyn communication). Synchronous communication is brittle because it needs all services to be alive. In an asynchronous communication, one of the system can be down other services can still continue. But pushing messages to an extrnal system can cause problems. We may need to update the table and publish the event. If one of this operation fails, then two systems will be out of sync -> Dual write problem. Transactional Outbox pattern helps to eliminate dual write problem. We persist both the state of entity and domain transaction in the same transaction. We refer to log of domain events as our outbox. A service or job consume the message from the outbox table and publish them to message platform. We can write outbox consumer ourself or use cockroachDB CDC(Change Data Capture). CDC can read messages from outbox table and publish to kafka.
+  
+  
+ Messages in a system can be : Commands, Queries and Events. Commands are request to change the state of a system. They can be accepted or rejected. Eg: adding a user or creating a vehicle. It may be important to know if command is failed or success. So mostly this is handled synchrnously. Queries are request for information about the state of a system. U send query and wait for response. They are often handled synchrously. Events record changes to the system. They represent something that occured in past. Eg user added, vehicle created. Since events occured in past, there is no need to handle then synchrously. They are usually broadcast to the system in a fire and forget way.This will be handled by downsteam when it is convinient.Events represent history of system. They should be immutable.
+  
+Outbox Table: Name it as event table. Will have event_id(UUID), timestamp(UTC time),  eventType, eventData(JSON) , publisher, correlation_id, offset(anti-pattern)
 
 Read More: https://glennfawcett.wpcomstaging.com
 
@@ -362,3 +384,4 @@ https://hibernate.org/orm/documentation/5.4/
 Mono repo: Keep every code in one repo. U cannot use Git. U need to use VCS.
 
 
+Transactional Outbox pattern
