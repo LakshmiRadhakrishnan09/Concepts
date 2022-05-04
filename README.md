@@ -310,8 +310,9 @@ Hash-Sharded Table
 Main Points
 * Do not use auto increment ids.
 * Do not use timestamp as primary key
-* Use UUID
+* Use UUID. @Id @GeneratedValue private UUID id;
 * Use TimeStampTZ for storing time
+* use now() at database at database.
 * Use JSON DataTypes for unstratured data
 * Use Array data types
 * Use computed columns
@@ -369,7 +370,28 @@ Transactional Outbox pattern:
   
  Messages in a system can be : Commands, Queries and Events. Commands are request to change the state of a system. They can be accepted or rejected. Eg: adding a user or creating a vehicle. It may be important to know if command is failed or success. So mostly this is handled synchrnously. Queries are request for information about the state of a system. U send query and wait for response. They are often handled synchrously. Events record changes to the system. They represent something that occured in past. Eg user added, vehicle created. Since events occured in past, there is no need to handle then synchrously. They are usually broadcast to the system in a fire and forget way.This will be handled by downsteam when it is convinient.Events represent history of system. They should be immutable.
   
-Outbox Table: Name it as event table. Will have event_id(UUID), timestamp(UTC time),  eventType, eventData(JSON) , publisher, correlation_id, offset(anti-pattern)
+Outbox Table: Name it as event table. Will have event_id(UUID), timestamp(UTC time),  eventType, eventData(JSON) , publisher, correlation_id, offset(anti-pattern).
+     
+@Type(type="jsonb")     
+private Map<String, Object> eventData;
+     
+EventLog:
+     * As an audit log
+     * Able to look back what happened while debugging
+     * Will help to recover
+Write them once. Never update them.\
+Event should reveal intent. Instaed of VehicleUpdated, use VehicleLocationChanged or VehicleBatteryLevelChanged. Reduce coupling.
+     
+RideService: @Transactional public startRide() { save to repo and publish event }
+     
+CDC: CDC monitors a specific set of tables. If changes happened in monitored table, changes are broadcasted. Core change feeds: Streams changes to a client until the underlying connection is closed. Available for all. Enterprise Change Feed: Stream changes to a sink like kafka. Available for only licensed version.
+     
+Enterprise Change Feed: Step 1. Enable it SET kv.rangefeed.enabled cluster setting to true in database(require admin priviledge). Step 2. Create feed. CREATE CHANGEFEED For table <table_name> INTO kafka_url. No other changes or code required.
+     
+CDC guarantess 1. "atleast-once". There can be potential duplicates. Design ur ysystem to handle duplicates. 2. "ordering" with a row. Duplicates may appear out of order. So check if greater timestamp is processed.If yes ignore the message. No gurantee across row. Think about event ordering and duplication impact on system when u use cockroachDB ctc.
+     
+RESOLVED timestamp: Indicates we no longer see messages onlder than this timestamp. Need to be configured when we create a feed. Read more. 
+
 
 Read More: https://glennfawcett.wpcomstaging.com
 
@@ -382,6 +404,3 @@ https://hibernate.org/orm/documentation/5.4/
 ### Monorepo vs Multi repo
 
 Mono repo: Keep every code in one repo. U cannot use Git. U need to use VCS.
-
-
-Transactional Outbox pattern
