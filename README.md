@@ -391,7 +391,13 @@ Enterprise Change Feed: Step 1. Enable it SET kv.rangefeed.enabled cluster setti
 CDC guarantess 1. "atleast-once". There can be potential duplicates. Design ur ysystem to handle duplicates. 2. "ordering" with a row. Duplicates may appear out of order. So check if greater timestamp is processed.If yes ignore the message. No gurantee across row. Think about event ordering and duplication impact on system when u use cockroachDB ctc.
      
 RESOLVED timestamp: Indicates we no longer see messages onlder than this timestamp. Need to be configured when we create a feed. Read more. 
-
+	
+SHOW JOBS;PAUSE JOB <job_id>;RESUME JOB <job_id>; CANCEL JOB\
+protect_data_from_gc_on_pause, on_error flags \
+	
+Consuming Events: Duplicate events are handled by ensuring consuming application is idempotent. Eg: adding to list vs adding to set. Use timestamp for idempotent. If u find a repeated timestamp, ignore the new one. But sometimes two different events can have same timestamp. So use a combination of timestamp and entity id to ensure duplicates. Another technique is using version number or using eventIds. If u are using kafka, ordering is guarenteed for a partitin. Wherever possible allow concurrency over ordering. 	
+	
+Deleting event log: Avoid deleting data. If you cant keep, consider archiving it.
 
 Read More: https://glennfawcett.wpcomstaging.com
 
