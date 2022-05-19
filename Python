@@ -1,0 +1,23 @@
+###Decorator
+
+Like AOP. Wraps a function. Example add logging in entry and exit of method.
+@logger(fun a):
+  print("entry")
+  r = a()
+  print("exit")
+  return r;
+  
+Now any method decorated with @logger will have entry and exit printed.
+
+
+### Python project structure
+Make file: Contain commands to install(pip install -r requirements.txt), test, analyse
+requirements.txt : everything that need to be installed
+__init__.py: Entry point to a module.
+
+
+### Python Virtual environment
+
+
+### Cli in Python
+setup.py
