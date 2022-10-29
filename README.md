@@ -1,4 +1,14 @@
 # Concepts
+### Reinforcment Learning
+
+Learn by awards. Like a kid learning. No training set. Learn on the go by reward function.
+
+### DeepRacer
+
+State(t), action(t), reward(t)
+
+Given a agent in an environment, create a model with action and reward function.
+
 ### REST
 REST - based on HTTP. use HTTP verbs. representation of a resource. HATEOAS (Hypertext As The Engine Of Application State) 
 
