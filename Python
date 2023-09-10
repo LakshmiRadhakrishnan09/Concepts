@@ -38,3 +38,8 @@ https://topdeveloperacademy.com/articles/python-multithreading-vs-java-multithre
 * So for I/O intensive this is fine. But for CPU intensive it is not good
 * Python allows multi processing. Allows parallel execution. Runs on multiple cores. But sharing is not allowed
 * Java supports multi threading. Parallel execution on multiple cores.
+* Multi processing need more resources. It is more expensive
+* For IO-bound tasks - first option is multithreading. Second option is multiprocessing.
+* Bottomline: Multithreading for IO-bound tasks. Multiprocessing for CPU-bound tasks.
+* Multi threading in Python allows concurrency
+* Multi processing in Python allows parallism
