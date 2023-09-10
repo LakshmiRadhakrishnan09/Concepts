@@ -34,7 +34,7 @@ Each Python process gets its own Python interpreter and memory space so the GIL 
 
 https://topdeveloperacademy.com/articles/python-multithreading-vs-java-multithreading-important-considerations-for-high-performance-programming#:~:text=Multithreading%20and%20High%2DPerformance%20with,Global%20Interpreter%20Lock%20(GIL).
 
-* In python, even a multi thread execution, only one thread gets executed( even if there are multi cores available).
+* In python, a multi thread execution uses a single core. only one thread gets executed( even if there are multi cores available).
 * So for I/O intensive this is fine. But for CPU intensive it is not good
-* Python allows multi processing. Allows parallel execution. But sharing is not allowed
+* Python allows multi processing. Allows parallel execution. Runs on multiple cores. But sharing is not allowed
 * Java supports multi threading. Parallel execution on multiple cores.
