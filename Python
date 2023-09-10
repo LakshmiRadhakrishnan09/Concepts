@@ -21,3 +21,20 @@ __init__.py: Entry point to a module.
 
 ### Cli in Python
 setup.py
+
+### Python doesnt support Multi Threading
+https://realpython.com/python-gil/
+
+Global Interpreter Lock or GIL,is a mutex (or a lock) that allows only one thread to hold the control of the Python interpreter.
+This means that only one thread can be in a state of execution at any point in time. 
+The GIL does not have much impact on the performance of I/O-bound multi-threaded programs as the lock is shared between threads while they are waiting for I/O.
+
+Multi-processing vs multi-threading: The most popular way is to use a multi-processing approach where you use multiple processes instead of threads. 
+Each Python process gets its own Python interpreter and memory space so the GIL won’t be a problem. 
+
+https://topdeveloperacademy.com/articles/python-multithreading-vs-java-multithreading-important-considerations-for-high-performance-programming#:~:text=Multithreading%20and%20High%2DPerformance%20with,Global%20Interpreter%20Lock%20(GIL).
+
+* In python, even a multi thread execution, only one thread gets executed( even if there are multi cores available).
+* So for I/O intensive this is fine. But for CPU intensive it is not good
+* Python allows multi processing. Allows parallel execution. But sharing is not allowed
+* Java supports multi threading. Parallel execution on multiple cores.
