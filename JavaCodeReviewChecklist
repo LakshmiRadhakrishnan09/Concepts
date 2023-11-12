@@ -1,3 +1,44 @@
 Is the code formatted
 Use tools like checkstyle, IntelliJ editorConfig
-Use constructor Injection isntaed of field injection
+Use constructor Injection instead of field injection
+https://eng.zemosolabs.com/when-not-to-autowire-in-spring-spring-boot-93e6a01cb793
+https://www.baeldung.com/java-spring-field-injection-cons
+
+      Instead of
+      @Autowired
+      private AnotherService anotherService;
+
+      Use constructor Injection
+      public MyService(AnotherService anotherService) {
+      }  
+
+      Use lombot @RequiredConstructor
+
+      
+PMD and CPD reports
+All fields should be final
+Having a StrinBuilder class level variable can cause thread issues
+
+
+Understand Spring Exception Hanlder
+https://www.baeldung.com/exception-handling-for-rest-with-spring
+https://www.bezkoder.com/spring-boot-restcontrolleradvice/
+
+@RestControllerAdvice
+public class ControllerExceptionHandler {
+  
+  @ExceptionHandler(value = {ResourceNotFoundException.class, CertainException.class})
+  @ResponseStatus(value = HttpStatus.NOT_FOUND)
+  public ErrorMessage resourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+    ErrorMessage message = new ErrorMessage(
+        status,
+        date,
+        ex.getMessage(),
+        description);
+    
+    return message;
+  }
+}
+
+@RestControler = @Controller + @ResponseBody
+@RestControllerAdvice = @ControllerAdvice + @ResponseBody
