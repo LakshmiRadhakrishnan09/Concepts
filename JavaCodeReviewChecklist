@@ -1,0 +1,3 @@
+Is the code formatted
+Use tools like checkstyle, IntelliJ editorConfig
+Use constructor Injection isntaed of field injection
