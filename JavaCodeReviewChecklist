@@ -1,5 +1,9 @@
 Is the code formatted
 Use tools like checkstyle, IntelliJ editorConfig
+checkstyle
+editorConfig
+PMD
+CPD 
 Use constructor Injection instead of field injection
 https://eng.zemosolabs.com/when-not-to-autowire-in-spring-spring-boot-93e6a01cb793
 https://www.baeldung.com/java-spring-field-injection-cons
