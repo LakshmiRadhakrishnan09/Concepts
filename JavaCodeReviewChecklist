@@ -46,3 +46,7 @@ public class ControllerExceptionHandler {
 
 @RestControler = @Controller + @ResponseBody
 @RestControllerAdvice = @ControllerAdvice + @ResponseBody
+
+
+Do not support delete. Use Soft delete
+Liquibase
