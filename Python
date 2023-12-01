@@ -43,3 +43,6 @@ https://topdeveloperacademy.com/articles/python-multithreading-vs-java-multithre
 * Bottomline: Multithreading for IO-bound tasks. Multiprocessing for CPU-bound tasks.
 * Multi threading in Python allows concurrency
 * Multi processing in Python allows parallism
+
+
+Python static Analysis tool - Black

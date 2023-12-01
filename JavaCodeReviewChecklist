@@ -1,7 +1,14 @@
-Is the code formatted
-Use tools like checkstyle, IntelliJ editorConfig
-checkstyle
-editorConfig
+Is the code formatted?
+Use tools like checkstyle
+  checkstyle.xml
+  Use IntelliJ plugin
+  Integrate with maven. maven checkstyle plugin
+IntelliJ editorConfig
+  just have the file in IntelliJ
+Intellij Setting -> AutoSave -> Reformat and Optimize Imports
+Code Coverage - 100%
+@Generated : Jococo will skip classes with @Generated
+Jococo Plugin : Define coverage  
 PMD
 CPD 
 Use constructor Injection instead of field injection
@@ -18,7 +25,11 @@ https://www.baeldung.com/java-spring-field-injection-cons
 
       Use lombot @RequiredConstructor
 
-      
+All fields should be final
+Use Constructor Injection
+Lombok config for @Value and @Qualifier
+Use single ObjectMapper 
+
 PMD and CPD reports
 All fields should be final
 Having a StrinBuilder class level variable can cause thread issues
