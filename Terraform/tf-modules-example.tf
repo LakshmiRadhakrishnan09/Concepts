@@ -51,19 +51,27 @@ resource "aws_subnet" "public_subnets" {
   tags                    = merge(var.tags, { Name = "${var.env}-public-${count.index + 1}" })
 }
 
+# Only these can be used for output
+output "vpc_id" {
+  value = aws_vpc.main.id
+}
 
 
 # Project A
 
+provider "aws" {
+  region = "us-east-1"
+}
+
 #Refer the modules. Use as is without any overriding. If not provided it use modules default variable values
-module "my_vpc_default" {   #
-    source = "../modules/aws_network"
+module "my_vpc_default" {   # we are using a module. similar to calling a function
+    source = "../modules/aws_network" # This is the only mandatory input required
 }
 
 #Use the modules by overriding variables(Module Input).
 module "my_vpc_staging" {
-    source               = "../modules/aws_network"
-    env                  = "staging"
+    source               = "../modules/aws_network" # Can be a git repo. public modules
+    env                  = "staging"    # This is a variable in module
     vpc_cidr             = "10.100.0.0/16"
     public_subnet_cidrs  = ["10.100.1.0/24", "10.100.2.0/24"]
     private_subnet_cidrs = []                   
@@ -71,5 +79,5 @@ module "my_vpc_staging" {
 
 # Output only those output by module( Module output)
 output "my_vpc_id" {
-  value = module.my_vpc_default.vpc_id
+  value = module.my_vpc_default.vpc_id    # module.your_resource_created_usng_module.module_output_name
 }

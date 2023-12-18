@@ -235,6 +235,11 @@ variable "allow_ports" {     # var.allow_ports["prod"] To read a map variable
     }
 }
 
+#Variable files
+#prod.tfvars
+#aws_region    = "ca-central-1"
+#port_list     = ["80", "443", "8443"]
+
 # Variables support validation
 variable "password" {
     description = "Enter password of length 10"
