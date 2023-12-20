@@ -420,3 +420,62 @@ https://hibernate.org/orm/documentation/5.4/
 ### Monorepo vs Multi repo
 
 Mono repo: Keep every code in one repo. U cannot use Git. U need to use VCS.
+
+### stdin, stdout and stderr
+
+Standard input - this is the file handle that your process reads to get information from you.
+
+Standard output - your process writes conventional output to this file handle.
+
+Standard error - your process writes diagnostic output to this file handle.
+
+By default, standard input is read from the keyboard, while standard output and standard error are printed to the screen.
+
+stdin, stdout, and stderr are three data streams created when you launch a Linux command. 
+
+https://www.howtogeek.com/435903/what-are-stdin-stdout-and-stderr-on-linux/
+
+Data streams, like water streams, have two ends. They have a source and an outflow. Whichever Linux command you're using provides one end of each stream. The other end is determined by the shell that launched the command. That end will be connected to the terminal window, connected to a pipe, or redirected to a file or other command, according to the command line that launched the command.
+
+Streams in Linux---like almost everything else---are treated as though they were files.
+
+Each file associated with a process is allocated a unique number to identify it. This is known as the file descriptor. 
+
+These values are always used for stdin, stdout, and stderr:
+
+0: stdin
+1: stdout
+2: stderr
+
+ls
+Both output and error in terminal window
+
+
+ls > capture.txt
+The > redirection symbol works with stdout by default. output to file. error in terminal
+
+./error.sh 2> capture.txt # To redirect error to file
+
+./error.sh 1> capture.txt 2> error.txt
+Because both streams of output--standard output and standard error---are redirected to files, there is no visible output in the terminal window. We are returned to the command line prompt as though nothing has occurred.
+
+./error.sh > capture.txt 2>&1
+
+2>&1: This uses the &> redirect instruction. This instruction allows you to tell the shell to make one stream got to the same destination as another stream. In this case, we're saying "redirect stream 2, stderr, to the same destination that stream 1, stdout, is being redirected to."
+
+
+There are two formats for  redirecting  standard  output  and  standard
+error:
+
+       &>word
+and
+       >&word
+
+Of the two forms, the first is preferred.  This is semantically equiva-
+lent to
+
+       >word 2>&1
+
+To redirect to stdout and stderr to same file
+cmd &> file.txt
+cmd >>file.txt 2>&1       

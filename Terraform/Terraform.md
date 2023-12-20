@@ -412,6 +412,7 @@ To import existing resources:
         Imports only the state. Not the configuration. 
         U need to define configuration block before u import.
         Not used with plan and apply
+        terraform import [options] <ADDRESS> <ID>
 * Option2: terafform import block
         Support multiple resources
         Can be used with terraform plan and apply.
@@ -583,7 +584,15 @@ TRACE, DEBUG, INFO, WARN, ERROR
 
 export TF_LOG=INFO
 
+TF_LOG : Enabling this setting causes detailed logs to appear on **stderr**
+
+
 export TF_LOG_PATH=terraform.logs
+Note that even when TF_LOG_PATH is set, TF_LOG must be set in order for any logging to be enabled.
+
+Setting TF_LOG to JSON outputs logs at the TRACE level or higher, and uses a parseable JSON encoding as the formatting.
+
+
 
 Terraform Cloud
 -------------------
@@ -648,7 +657,7 @@ terraform init -upgrade
 
 terraform providers lock ( normally invoked as part of terraform init)
 
-The terraform providers lock consults upstream registries (by default) in order to write provider dependency information into the dependency lock file.
+The 'terraform providers lock' consults upstream registries (by default) in order to write provider dependency information into the dependency lock file.
 
 The 'terraform providers lock' will analyze the configuration in the current working directory to find all of the providers it depends on, and it will fetch the necessary data about those providers from their origin registries and then update the dependency lock file to include a selected version for each provider and all of the package checksums that are covered by the provider developer’s cryptographic signature.
 
@@ -726,7 +735,7 @@ terraform {
 
 A backend block cannot refer to named values (like input variables, locals, or data source attributes).
 
-You can supply backend ocnfigurations using:
+You can supply backend ocnfigurations using as part of terraform **init**:
 terraform init -backend-config=PATH or terraform init -backend-config="KEY=VALUE"
 
 local backend type doesn’t support remote state storage; artifactory and etcd backend types doesn’t support state locking.
@@ -736,6 +745,8 @@ Remote Backend : Execute operations on terraform cloud
 The remote backend is unique among all other Terraform backends because it can both store state snapshots and execute operations for Terraform Cloud's CLI-driven run workflow. It used to be called an "enhanced" backend.
 
 We recommend using environment variables to supply credentials and other sensitive data. If you use -backend-config or hardcode these values directly in your configuration, Terraform will include these values in both the .terraform subdirectory and in plan files. This can leak sensitive credentials.
+
+Terraform writes backend configuration as plain text in .terraform/terraform.tfstate
 
 
 Terraform Workspace
@@ -914,6 +925,135 @@ version = ">= 1.2.0, < 2.0.0"
 ~>: Allows only the rightmost version component to increment. This format is referred to as the pessimistic constraint operator. 
 ~> 1.0.4: Allows Terraform to install 1.0.5 and 1.0.10 but not 1.1.0.
 ~> 1.0.4 means >= 1.0.4 and < 1.1.0
+
+terraform init
+----------------
+
+Provider initialization is one of the actions of terraform init. Running this command will download and initialize any providers that are not already initialized.
+
+Note that terraform init cannot automatically download providers that are not distributed by HashiCorp.
+
+terraform validate
+--------------------
+
+Check only configuration state
+Will not validate remote state
+U should run terraform init before u run validate.
+
+-check-variables=true - If set to true (default), the command will check whether all required variables have been specified.
+
+In terraform if a variable dont have a default value, then it is a required variable. 
+
+This command does not check formatting (e.g. tabs vs spaces, newlines, comments etc.).
+
+The following can be reported:
+
+invalid HCL syntax (e.g. missing trailing quote or equal sign)
+invalid HCL references (e.g. variable name or attribute which doesn't exist)
+same provider declared multiple times
+same module declared multiple times
+same resource declared multiple times
+invalid module name
+interpolation used in places where it's unsupported (e.g. variable, depends_on, module.source, provider)
+missing value for a variable (none of -var foo=... flag, -var-file=foo.vars flag, TF_VAR_foo environment variable, terraform.tfvars, or default value in the configuration)
+
+In terraform version 0.12 the terraform validate command does not support the check-variables flag.terraform validate checks if the module implementation itself is valid, not whether a particular plan for it is valid. Variables are part of a plan rather than part of the module itself, so terraform validate does not do any checks of their values. (it does, however, detect if they are being used consistently in the module, such as producing an error if a string variable is used where a list is expected.)
+
+
+Sensitive data
+---------------
+
+Defining a variable as sensitive: Terraform will then redact these values in the output of Terraform commands or log messages.
+But it will be saved in state file. So use encrypted backends.
+
+To pass sensitive value use either a secret.tfvars file(do not check in this file) or use env variables.
+
+The AWS provider considers the password argument for any database instance as sensitive, whether or not you declare the variable as sensitive, and will redact it as a sensitive value. You should still declare this variable as sensitive to make sure it's redacted if you reference it in other locations than the specific password argument.
+
+
+Referencing secret value as outputs:
+When you use sensitive variables in your Terraform configuration, you can use them as you would any other variable. Terraform will redact these values in command output and log files, and raise an error when it detects that they will be exposed in other ways.
+If u refer a sensitive value in output, terraform will raise an error!!
+
+Terraform Cloud and Terraform Enterprise manage and share sensitive values, and encrypt all variable values before storing them. **HashiCorp Vault** secures, stores, and tightly controls access to tokens, passwords, and other sensitive values.
+
+Child and Parent Module
+--------------------------
+All modules are self-contained, and a child module does not inherit variables from the parent. You have to explicitly define the variables in the module, and then set them in the parent module when you create the module.
+
+
+For_each and count
+----------------
+
+A given resource or module block cannot use both count and for_each.
+
+The for_each meta-argument accepts a map or a set of strings, and creates an instance for each item in that map or set. 
+
+```
+resource "azurerm_resource_group" "rg" {
+  for_each = {
+    a_group = "eastus"
+    another_group = "westus2"
+  }
+  name     = each.key
+  location = each.value
+}
+
+resource "aws_iam_user" "the-accounts" {
+  for_each = toset( ["Todd", "James", "Alice", "Dottie"] )
+  name     = each.key
+}
+
+
+```
+
+The keys of the map (or all the values in the case of a set of strings) must be known values. for_each keys cannot be the result (or rely on the result of) of impure functions, including uuid, bcrypt, or timestamp, as their evaluation is deferred during the main evaluation step.
+
+Sensitive values, such as sensitive input variables, sensitive outputs, or sensitive resource attributes, cannot be used as arguments to for_each. Terraform will through an error
+
+Referencing: <TYPE>.<NAME>[<KEY>]
+azurerm_resource_group.rg["a_group"],
+azurerm_resource_group.rg["another_group"]
+
+This is different from resources and modules without count or for_each, which can be referenced without an index or key.
+
+Splat Expression:
+**var.list[*].id**  is same as **[for o in var.list : o.id]**
+
+The splat expression patterns shown above apply only to lists, sets, and tuples. Cannot be used with for_each map objects.
+
+Count:
+Instances are identified by an index number, starting with 0.
+
+Referencing: <TYPE>.<NAME>[<INDEX>]
+
+when to use:
+If your instances are almost identical, count is appropriate. If some of their arguments need distinct values that can't be directly derived from an integer, it's safer to use for_each.
+
+for Expression
+
+[for s in var.list : upper(s)]
+
+[for k, v in var.map : length(k) + length(v)]
+
+The type of brackets around the for expression decide what type of result it produces.
+
+The above example uses [ and ], which produces a tuple. If you use { and } instead, the result is an object and you must provide two result expressions that are separated by the => symbol:
+
+{for s in var.list : s => upper(s)}
+This expression produces an object whose attributes are the original elements from var.list and their corresponding values are the uppercase versions. 
+
+{
+  foo = "FOO"
+  bar = "BAR"
+  baz = "BAZ"
+}
+
+For maps and objects, Terraform sorts the elements by key or attribute name, using lexical sorting.
+
+You can't dynamically generate nested blocks using for expressions, but you can generate nested blocks for a resource dynamically using dynamic blocks.
+
+
 
 
 

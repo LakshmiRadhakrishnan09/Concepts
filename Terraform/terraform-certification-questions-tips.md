@@ -246,3 +246,232 @@ What are some built-in functions that terraform provides?
 
 A
 max(), regex(), alltrue()
+
+Q
+One remote backend configuration always maps to a single remote workspace.
+
+A
+False
+
+Q
+Terraform variables and outputs that set the "description" argument will store that description in the state file.
+
+A
+False. Description will not be stored in state file.
+
+Q
+If a module uses a local values, you can expose that value with a terraform output.
+
+A
+True
+
+locals {
+ some_local_value = ""
+}
+
+output "my_local_vale"{
+  value = local.some_local_value
+}
+
+Q
+A Terraform provisioner must be nested inside a resource configuration block.
+
+A
+True
+
+Q
+
+You have declared a variable called var.list which is a list of objects that all have an attribute id.
+Which options will produce a list of the IDs? (Choose two.)
+
+A
+
+var.list[*].id 
+[ for o in var.list : o.id ]
+
+Terrfaorm variable arguments - default, type are all optional. Nothing is mandatory
+
+Q
+Which option can not be used to keep secrets out of Terraform configuration files?
+
+Providers, secure string, env variable, -var flag
+
+A
+
+secure string
+Vault is a provider.
+
+Q
+In Terraform 0.13 and above, outside of the required_providers block, Terraform configurations always refer to providers by their local names.
+
+A
+TRUE
+
+Each provider has two identifiers. Local name and unique source address. Local names must be unique per module.
+Outside of the required_providers block, Terraform configurations always refer to providers by their local names.  
+
+aws , google are all providers local name.
+
+Q
+Terraform providers are always installed from the Internet.
+
+A
+False
+
+For air gapped systems, we can bundle provider along with the Terraform binaries. These Bundle can be installed without internet on air gapped system.  NOTE: For downloading the bundle we need internet access, this can be done on a system which as internet access and later transfer to the air gapped system
+
+Q
+When does terraform apply reflect changes in the cloud environment?
+
+A
+Not sure - However long it takes the resource provider to fulfill the request
+
+When u apply
+1. Terraform will lock the state file
+2. Create a plan
+3. Execute steps
+4. Update state
+5. Unlock state file
+6. Report
+
+Your infrastructure may be in an invalid state after a Terraform apply step errors out. Terraform does not support automatically rolling back a partially-completed apply. 
+
+Q
+A Terraform provider is not responsible for:
+
+A
+Not sure - Provisioning infrastructure in multiple clouds 
+
+Providers are responsible in Terraform for managing the lifecycle of a resource: create, read, update, delete.
+
+Q
+Which flag would you add to terraform plan to save the execution plan to a file?
+A
+**-out**
+
+Q
+Which of these options is the most secure place to store secrets foe connecting to a Terraform remote backend?
+
+A
+Not sure - Env Variable or Vault
+
+Q
+When you initialize Terraform, where does it cache modules from the public Terraform Module Registry?
+A
+.terraform directory
+
+Q
+Which of the following is allowed as a Terraform variable name?
+
+A
+name
+
+Not allowed : source, version, count, depends_on, providers, for_each, lifecycle, locals
+
+Q
+Module variable assignments are inherited from the parent module and do not need to be explicitly set.
+A
+Not sure - 
+
+Q
+
+If writing Terraform code that adheres to the Terraform style conventions, how would you **properly indent each nesting level compared to the one above it**?
+
+A
+two spaces
+
+Q
+HashiCorp Configuration Language (HCL) supports user-defined functions.
+
+A
+FALSE
+
+HCL does not support user defined functions
+
+Q
+Terraform and Terraform providers must use the same major version number in a single configuration.
+
+A
+FALSE
+terraform version and providers version can be different.
+
+Q
+Which option cannot be used to keep secrets out of Terraform configuration files?
+A. Environment Variables
+B. Mark the variable as sensitive 
+C. A Terraform provider
+D. A -var flag
+
+A
+Mark the variable as sensitive. It wont be showed in console, but still it is part of configuration.
+Terraform will redact the values of sensitive variables in console and log output, to reduce the risk of accidentally disclosing these values. The value will be in state file.
+
+Q
+How would you reference the Volume IDs associated with the ebs_block_device blocks in this configuration?
+``
+resource "aws_instance" "example" {
+ami = "ami-abc123"
+instance_type - "t2.micro"
+ebs block device f
+device name = "sda2"
+volume size = 16
+ebs block device {
+device_name = "sda3"
+volume
+_size = 20
+}
+｝
+``
+A. aws_instance.example.ebs_block_device.[*].volume_id Most Voted
+B. aws_instance.example.ebs_block_device.volume_id
+C. aws_instance.example.ebs_block_device[sda2,sda3].volume_id
+D. aws_instance.example.ebs_block_device.*.volume_id 
+
+A
+aws_instance.example.ebs_block_device.*.volume_id 
+
+Option A has a extra dot
+
+aws_instance.example.ebs_block_device.*.volume_id and aws_instance.example.ebs_block_device[*].volume_id
+
+Q
+All modules published on the official Terraform Module Registry have been verified by HashiCorp.
+
+A
+FALSE
+Any one can publish
+
+Verified modules are reviewed by HashiCorp and actively maintained by contributors to stay up-to-date and compatible with both Terraform and their respective providers.
+
+The verified badge appears next to modules that are published by a verified source.
+
+
+Q
+How do you specify a module's version when publishing it to the public Terraform Module Registry?
+A
+The release tags in the associated repo
+Release tag names must be a semantic version, which can optionally be prefixed with a v . For example, v1. 0.4 and 0.9.
+
+
+Q
+
+All Terraform Cloud tiers support team management and governance.
+
+A
+
+FALSE
+
+Free Tie doent support team management.
+
+Q
+Which of the following is not an advantage of using infrastructure as code operations?
+
+A
+Public cloud console configuration workflows
+
+Q
+You can reference a resource created with for_each using a Splat (*) expression.
+
+A
+FALSE
+
