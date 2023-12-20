@@ -1,4 +1,10 @@
-Automate Infrastructure provisioning
+## Terraform
+
+Terraform is an immutable, declarative, Infrastructure as Code provisioning language based on Hashicorp Configuration Language, or optionally JSON.
+Automate Infrastructure provisioning. It is not a configuration management tool.
+Configuration management tool like Chef and Puppet install and manage software on a machine that already exists. Terraform is not a configuration management tool, it is an Infrastructure provisioning tool to bootstrap and initialize resources.
+
+There is no Terraform binary for AIX. Terraform is available for:- macOS, Windows, Linux, FreeBSD, OpenBSD, and Solaris.
 
 Main Concept
 ---------------
@@ -122,6 +128,10 @@ default
 - Default parameter is optional
 - Value of default should be a literal and cannot refer another configuration
 
+The .tfstate and .tfvars might contain sensitive data and should be added in .gitignore file
+
+depends_on is an optional argument for declaring output value, not for declaring input variable.
+
 
 Executing local commands using provisioner. Will execute on local machine
 resource "null_resource" "command1" {
@@ -146,6 +156,8 @@ resource "null_resource" "command2" { //if u run tf again it will not execute. E
     }
 }
 
+null_resource has been renamed to terraform_data in Terraform v1.4.x and later version
+
 resource "aws_instance" "my_instance"{
     instance_type = "t3.micro"
     provisioner "local-exec" { //provisioner can be part of a resource provision. It is executed on local machine. Is executed after resource is provisioned 
@@ -167,6 +179,13 @@ resource "aws_instance" "my_instance"{
         }
     }
 }
+
+provisioner "local-exec" {
+  when    = destroy
+  command = "echo 'Destroy-time provisioner'"
+}
+
+destroy provisioner is executed "before" the resource is destroyed.
 
 Lookup - to lookup a variable of type map
 variable "server_size" {
@@ -291,6 +310,20 @@ Modules can use other modules.
 
 source = "terraform-aws-modules/rds/aws" # module registerd in terraform. No need of absolute path. U can specify version.
 
+To copy a source module
+Given a version control source, terraform init -from-module={MODULE-SOURCE} can serve as a shorthand for checking out a configuration from version control and then initializing the working directory for it.
+
+Whenever you add a new module to a configuration, Terraform must install the module before it can be used. Both the **terraform get** and **terraform init** commands will install and update modules.
+
+A module that has been called by another module is often referred to as a child module. The module that calls a module is called parent module.
+
+Module arguments - source, version, depends_on, count, for_each, providers.
+
+When specifying a source for a private registry, the correct Syntax is <HOSTNAME>/<NAMESPACE>/<NAME>/<PROVIDER> e.g. app.terraform.io/example_corp/vpc/aws. It is different than the public registry because it includes the <HOSTNAME> field.
+
+to refer modules from Public Terraform Registry use <NAMESPACE>/<NAME>/<PROVIDER>. eg: hashicorp/consul/aws
+
+
 # Terraform module for multiple region and account.
 https://github.com/adv4000/terraform_certified/blob/master/Lab-36/main.tf
 
@@ -414,7 +447,7 @@ Terraform workspace
 Same code. Different state. Duplicate resources. 
 Use workspace only for **testing**. Never use it for prod, test, staging provisioning.
 
-5 commands: terraform workspace show, list, new, select, delete
+5 commands: terraform workspace show, list, new, **select**, delete
 
 show: show the current workspace. By default , default workspace.
 list: all workspaces.
@@ -426,11 +459,13 @@ ${terraform.workspace} : holds the workspace name. Use it to identify the worksp
 Terraform state
 ------------------
 
+Default location : the current directory where terraform is executed.
+
 terraform state show, list, pull - No changes to state
 terraform state rm, mv, push - Danger commands. Change the state. Do proper review.
 
 show: show configuration of a resource. 
-    terraform show state <resource_name>
+    terraform state show <resource_name>
 list: show all resources that exist in state file
     lists resources managed by state. Only resource references. eg: aws_instance.web
 pull: pull state file to local
@@ -482,6 +517,8 @@ terraform pull: This command downloads the state from its current location, upgr
 terraform state rm <resource_address>:  You can use terraform state rm in the less common situation where you wish to remove a binding to an existing remote object without first destroying it, which will effectively make Terraform "forget" the object while it continues to exist in the remote system. Terraform will no longer be tracking the corresponding remote objects. Resource will continue to exist in remote system. A subsequent terraform plan will include an action to create a new object for each of the "forgotten" instances. 
 terraform state mv <resource_address> : You can use terraform state mv in the less common situation where you wish to retain an existing remote object but track it as a different resource instance address in Terraform, such as if you have renamed a resource block or you have moved it into a different module in your configuration.
 
+Running a terraform state list does not cause Terraform to refresh its state. This command simply reads the state file but it will not modify it.
+
 More Commands
 --------------
 
@@ -509,8 +546,11 @@ If you've updated providers which contain new schema versions since the state wa
 terraform console # Run terraform functions upper(), max()
 
 terraform refresh # update state file with current configuration(what is deployed).
+terraform refresh is deprecated. Not recommened to use.
 
 force-unlock : This command removes the lock on the state for the current configuration. Manually unlock the state for the defined configuration.
+
+terraform force-unlock
 
 To destroy resources
 terraform apply -destroy
@@ -520,6 +560,20 @@ terraform destroy : Will ask "Do you really want to destroy all resources?"
 terraform plan -destroy
 terraform state rm * . This will not delete the remote resource.
 
+terraform fmt
+To see the diff - terraform fmt -diff.
+terraform fmt -diff command display diffs of formatting changes
+terraform fmt -check -recursive  # format current directory and subdirectory
+
+
+terraform validate -json
+
+terraform refresh is an alias of terraform apply -refresh-only -auto-approve. But this is risky. Alternatily use terraorm apply -refresh-only.
+Automatically applying the effect of a refresh is risky. If you have misconfigured credentials for one or more providers, Terraform may be misled into thinking that all of the managed objects have been deleted, causing it to remove all of the tracked objects without any confirmation prompt.
+
+terraform plan -out=dev.tfplan
+
+The command terraform apply -parallelism=20 limits the number of concurrent operation to 20 as Terraform walks the graph. default is 10.
 
 Terraform logs
 ----------------
@@ -580,14 +634,286 @@ module "global" {
 
 Dependency Lock file
 ------------------------
-terraform.lock.hcl
+.terraform.lock.hcl
 
 Created when u run terraform init. To record provider selections. Include this file in version control repository. 
 Do not edit manually.
 
+The dependency lock file is always named .terraform.lock.hcl, and this name is intended to signify that it is a lock file for various items that Terraform caches in the .terraform subdirectory of your working directory. Terraform automatically creates or updates the dependency lock file each time you run the terraform init command. 
+
+You should include this file in your version control repository so that you can discuss potential changes to your external dependencies via code review, just as you would discuss potential changes to your configuration itself.
+
+
 terraform init -upgrade
 
-terraform refresh is deprecated. Not recommened to use.
+terraform providers lock ( normally invoked as part of terraform init)
+
+The terraform providers lock consults upstream registries (by default) in order to write provider dependency information into the dependency lock file.
+
+The 'terraform providers lock' will analyze the configuration in the current working directory to find all of the providers it depends on, and it will fetch the necessary data about those providers from their origin registries and then update the dependency lock file to include a selected version for each provider and all of the package checksums that are covered by the provider developer’s cryptographic signature.
+
+
+terraform providers mirror: downloads the providers required for the current configuration and copies them into a directory in the local filesystem.
+
+Terraform state
+--------------------
+
+Terraform stores information about your infrastructure in a state file. This state file keeps track of resources created by your configuration and maps them to real-world resources.Terraform compares your configuration with the state file and your existing infrastructure to create plans and make changes to your infrastructure(terraform refresh).
+
+Terraform automatically performs a refresh during the plan, apply, and destroy operations. All of these commands will reconcile state by default, and have the potential to modify your state file.
+
+The terraform refresh command updates the state file when physical resources change outside of the Terraform workflow.
+
+1. Using tf u created a ECS Instance
+2. U deleted ECS Instance using AWS Console
+3. tf refresh
+        Deleted resource will not be in state. It shows actual infrastructure
+4. tf plan/apply
+        Will add back the resource.
+
+State locking happens automatically on all operations that could write state. You won’t see any message that it is happening. If state locking fails, Terraform will not continue. You can disable state locking for most commands with the -lock flag but it is not recommended.
+
+Not all backends support locking. Following Terraform backend types supports state locking:- local, remote, azurerm, consul, cos, gcs, http, kubernetes, oss, pg, and s3
+
+Terraform Cloud
+--------------------
+
+Terraform Cloud manages plans and billing at the "organization level."
+Small teams can use most of Terraform Cloud's features for free, including remote Terraform execution, VCS integration, the private module registry.
+
+Free organizations are limited to five active members.
+
+Terraform Cloud has 4 Pricing Tiers:
+Free : Upto 500 resources per month. Free
+Standard : Enterprise support Included. Some are free.
+Plus : Enterprise support Included. Paid
+Enterprise : Enterprise support Included. Paid
+
+SSO is supported for Free tier now.
+
+Audit Logging, Drift detection , Sentinel : For Plus and Enterprise tiers
+Application Logging and Log forwarding, Runtime metrics(Prometheus) : Only for Enterprise
+
+
+Remote State
+---------------
+
+Remote state is implemented by a backend(S3 or gcp or ...) or by Terraform Cloud, both of which you can configure in your configuration's root module.
+
+With a fully-featured state backend, Terraform can use remote locking as a measure to avoid two or more different users accidentally running Terraform at the same time, and thus ensure that each Terraform run begins with the most recent updated state.
+
+
+Terraform Backend
+----------------------
+Each tf configuration has a backend.
+Backend defines - where is the state file and where the operations are executed.
+Some backend support multiple workspaces.
+
+
+
+Local Backend : Stores state files, lock that state and perform operations locally. It will not store providers.
+The path and workspace_dir are two optional configuration supported by local backend.
+path - (Optional) The path to the tfstate file. This defaults to "terraform.tfstate" relative to the root module by default.
+workspace_dir - (Optional) The path to non-default workspaces.
+
+A terraform configuration can only provide one backend block.
+
+terraform {
+  backend "local" {
+    path = "relative/path/to/terraform.tfstate"
+  }
+}
+
+A backend block cannot refer to named values (like input variables, locals, or data source attributes).
+
+You can supply backend ocnfigurations using:
+terraform init -backend-config=PATH or terraform init -backend-config="KEY=VALUE"
+
+local backend type doesn’t support remote state storage; artifactory and etcd backend types doesn’t support state locking.
+
+Remote Backend : Execute operations on terraform cloud
+
+The remote backend is unique among all other Terraform backends because it can both store state snapshots and execute operations for Terraform Cloud's CLI-driven run workflow. It used to be called an "enhanced" backend.
+
+We recommend using environment variables to supply credentials and other sensitive data. If you use -backend-config or hardcode these values directly in your configuration, Terraform will include these values in both the .terraform subdirectory and in plan files. This can leak sensitive credentials.
+
+
+Terraform Workspace
+-----------------------
+workspace is like renaming you state file. 
+
+For local state, Terraform stores the workspace states in a directory called terraform.tfstate.d.
+
+For remote state, the workspaces are stored directly in the configured backend. 
+
+The state file belongs to a workspace.
+Some backends support multiple named workspaces.
+
+You can have as S3 backend. You can have multiple workspaces associated to this backend.
+
+You cannot delete default workspace.
+
+Terraform stores the current workspace name locally in the ignored .terraform directory. This allows multiple team members to work on different workspaces concurrently. Workspace names are also attached to associated remote workspaces in Terraform Cloud. 
+
+Remote backend can work with either a single remote Terraform Cloud workspace, or with multiple similarly-named remote workspaces (like networking-dev and networking-prod). The workspaces block of the backend configuration determines which mode it uses.
+
+# Using a single workspace:
+terraform {
+  backend "remote" {
+    hostname = "app.terraform.io"
+    organization = "company"
+
+    workspaces {
+      name = "my-app-prod"
+    }
+  }
+}
+
+# Using multiple workspaces:
+terraform {
+  backend "remote" {
+    hostname = "app.terraform.io"
+    organization = "company"
+
+    workspaces {
+      prefix = "my-app-"
+    }
+  }
+}
+
+
+Terraform Cloud Workspace
+----------------------------
+
+Terraform Cloud organizes infrastructure using workspaces, but its workspaces act more like completely separate working directories. Each Terraform Cloud workspace has its own Terraform configuration, set of variable values, state data, run history, and settings.
+
+When you integrate Terraform CLI with Terraform Cloud, you can associate the current CLI working directory with one or more remote Terraform Cloud workspaces. Then, use the terraform workspace commands to select the remote workspace you want to use for each run.
+
+
+Providers
+------------------
+
+Terraform configurations must declare which providers they require so that Terraform can install and use them.
+
+```
+provider "google" {
+  project = "acme-app"
+  region  = "us-central1"
+}
+```
+
+
+alias and version: two provider arguments defined by terraform and available for all providers.
+
+alias: using same provider with different configuration for different resources. Eg: configure aws provider multi-region.
+
+version: not recommended. use provider requirements instaed.
+
+A provider block without an alias argument is the default configuration for that provider. 
+
+Each Terraform module must declare which providers it requires, so that Terraform can install and use them. Provider requirements are declared in a required_providers block. 
+
+```
+terraform {
+  required_providers {
+    mycloud = {     # local name
+      source  = "mycorp/mycloud"  # global source address
+      version = "~> 1.0"
+    }
+  }
+}
+```
+```
+
+provider "mycloud" {
+
+}
+```
+
+Users of a provider can use any local name. 
+Whenever possible use providers preferred local name. For example harshicorp/aws use aws as local name. Then you can omit provider in your resource configuration. (If a resource doesn't specify which provider configuration to use, Terraform interprets the first word of the resource type as a local provider name.)
+
+resource "aws_instance" {  # first word "aws" is considered as provider.
+
+}
+
+
+source -> [<HOSTNAME>/]<NAMESPACE>/<TYPE>
+hostname by default is registry.terraform.io
+
+required_providers defines the list or providers necessary for deploying resources. This can be a single one, or multiple including aws, azurerm, google, kubernetes, alicloud and a dozen others. 
+
+If you don't declare a particular provider(as required provider), Terraform will create an implicit required_providers declaration assuming that you mean a provider in the hashicorp/ namespace, which makes it seem as though required_providers is only for third-party providers. For third paty privider , required_provider is mandatory. 
+
+Syntax
+--------
+
+Indent two spaces for each nesting level.
+
+
+Resource Graph
+-------------------
+https://developer.hashicorp.com/terraform/internals/graph#building-the-graph
+
+Terraform builds a dependency graph from the Terraform configurations, and walks this graph to generate plans, refresh state, and more. 
+
+Resource Node: The configuration, diff, state, etc. of the resource under change is attached to this node.
+Provider Configuration Node
+
+terraform graph
+
+
+1. Resource nodes are added. If a diff (plan) or state is present, that meta-data is attached to each resource node.
+2. Resources are mapped to provisioners if they have any defined. 
+3. Create edges between node, (uses depends_on) 
+4. If a state is present, any "orphan" resources are added to the graph. Orphan resources are any resources that are no longer present in the configuration but are present in the state file. Orphans never have any configuration associated with them, since the state file does not store configuration.
+5. Resources are mapped to providers.
+6. References to resource attributes are turned into dependencies from the resource with the interpolation to the resource being referenced.
+7. Create a root node.
+8. If a diff is present, traverse all resource nodes and find resources that are being destroyed. These resource nodes are split into two: one node that destroys the resource and another that creates the resource (if it is being recreated). The reason the nodes must be split is because the destroy order is often different from the create order, and so they can't be represented by a single graph node.
+9. Validate the graph has no cycles and has a single root.
+
+Selecting Plugins
+---------------
+
+After locating any installed plugins, 'terraform init' compares them to the configuration's version constraints and chooses a version for each plugin as follows:
+
+If any acceptable versions are installed, Terraform uses the newest installed version that meets the constraint (even if the Terraform Registry has a newer acceptable version).
+If no acceptable versions are installed and the plugin is one of the providers distributed by HashiCorp, Terraform downloads the newest acceptable version from the Terraform Registry and saves it in a subdirectory under .terraform/providers/.
+If no acceptable versions are installed and the plugin is not distributed in the Terraform Registry, initialization fails and the user must manually install an appropriate version.
+
+To publish a module to public registry
+
+- module must be on GitHub and must be a public repo
+- at least one release tag
+- naming convention terraform-PROVIDER-Name eg: terraform-google-vault
+
+The requirements for Publishing to Terraform Cloud Private Registry is same as publishing to Terraform Public Registry except that module repository can be on your configured VCS providers in case of private registry whereas it must be public Github repo in case of public registry
+
+Sentinel Imports
+------------------
+
+Terraform Cloud provides four imports to define policy rules for the plan, configuration, state, and run associated with a policy check.
+
+- tfplan
+- tfconfig : Set of .tf files.
+- tfstate
+- tfrun
+
+Enforcement levels
+
+- Advisory: Will not fail the run
+- Soft Mandatory : Fails the run. But u can override and continue. User with  'Manage Policy Overrides permission'. the run pauses in the Policy Override state.
+- Hard Mandatory : Cannot override.
+
+
+Version Constraint
+
+version = ">= 1.2.0, < 2.0.0"
+
+~>: Allows only the rightmost version component to increment. This format is referred to as the pessimistic constraint operator. 
+~> 1.0.4: Allows Terraform to install 1.0.5 and 1.0.10 but not 1.1.0.
+~> 1.0.4 means >= 1.0.4 and < 1.1.0
 
 
 
