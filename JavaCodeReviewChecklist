@@ -36,3 +36,7 @@ Having a StrinBuilder class level variable can cause thread issues
 
 Do not support delete. Use Soft delete
 Liquibase
+
+
+Logging
+Log full execption Object. Log Custom Message.
