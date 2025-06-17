@@ -34,3 +34,11 @@ If you're writing a library, you might exclude poetry.lock and let consumers res
 You should add python version explicitly. Do not use poetry add python
 [tool.poetry.dependencies]
 python = "^3.10"
+
+To start creating poetry project
+
+poetry new myproject
+cd myproject
+poetry env use python3.10
+
+
