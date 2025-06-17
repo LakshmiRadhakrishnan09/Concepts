@@ -1,0 +1,16 @@
+Make File : To automate common tasks. Use named taskt to run long commands. 
+
+
+Poetry : To manage dependencies ( similar to pip). Manage virtual env(venv). Build and publish python package.
+
+.PHONY is a special declaration in a Makefile that says: “This is not a file. It's just a named task I always want to run.”
+
+
+Example
+-----------
+install is a named task
+
+.PHONY: install run build test clean
+
+install:
+	poetry install
