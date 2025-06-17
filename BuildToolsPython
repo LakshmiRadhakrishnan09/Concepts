@@ -26,3 +26,7 @@ poetry update : updates the lock file with newer versions.
 
 If you remove a package from pyproject.toml, you must run poetry lock or poetry install to update the lock file accordingly.
 Always commit both pyproject.toml and poetry.lock to version control
+
+Always commit poetry.lock to version control — especially for apps — so that everyone installs the same versions.
+
+If you're writing a library, you might exclude poetry.lock and let consumers resolve their own versions.
