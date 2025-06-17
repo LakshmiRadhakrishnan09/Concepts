@@ -14,3 +14,15 @@ install is a named task
 
 install:
 	poetry install
+
+
+POETRY
+
+.toml file : You declare what dependency is required
+.lock file : created by Poetry
+
+poetry install : reads from .lock file and installs that.
+poetry update : updates the lock file with newer versions.
+
+If you remove a package from pyproject.toml, you must run poetry lock or poetry install to update the lock file accordingly.
+Always commit both pyproject.toml and poetry.lock to version control
