@@ -30,3 +30,7 @@ Always commit both pyproject.toml and poetry.lock to version control
 Always commit poetry.lock to version control — especially for apps — so that everyone installs the same versions.
 
 If you're writing a library, you might exclude poetry.lock and let consumers resolve their own versions.
+
+You should add python version explicitly. Do not use poetry add python
+[tool.poetry.dependencies]
+python = "^3.10"
